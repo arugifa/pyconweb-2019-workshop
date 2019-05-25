@@ -1,0 +1,21 @@
+version: "3"
+services:
+  api:
+    build: .
+    image: pyconweb-2019/terraform-workshop:latest
+    entrypoint: ''
+    # Wait for database container to start before running the server.
+    command: sh -c 'while ! nc -vz db 5432 ; do sleep 10 ; done && workshop-server'
+    environment:
+      DB_URI: postgresql://pyconweb:2019@db/workshop
+      SERVER_PORT: ${DEMO_PORT}
+    ports:
+      - ${DEMO_PORT}:${DEMO_PORT}
+    depends_on:
+      - db
+  db:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: pyconweb
+      POSTGRES_PASSWORD: "2019"
+      POSTGRES_DB: workshop
